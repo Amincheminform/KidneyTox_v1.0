@@ -8,4 +8,6 @@ mordred==1.2.0
 matplotlib==3.7.1 
 shap==0.47.1
 Pillow==10.2.0  # Pillow 11 may not be stable across platforms
-git+https://github.com/biochem7083/streamlit_ketcher.git
+#git+https://github.com/biochem7083/streamlit_ketcher.git
+git+https://github.com/Amincheminform/streamlit_ketcher.git
+
