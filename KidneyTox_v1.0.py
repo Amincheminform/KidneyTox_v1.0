@@ -22,17 +22,19 @@ import io
 # [Details](https://www.scopus.com/authid/detail.uri?authorId=57190176332).
 # Date: 03.07.2025
 
-#train_url = "https://github.com/Amincheminform/phKMOi_v1/raw/main/0_train_hKMOi.csv"
-#test_url = "https://github.com/Amincheminform/phKMOi_v1/raw/main/0_test_hKMOi.csv"
+train_url = "https://github.com/Amincheminform/KidneyTox_v1.0/raw/main/0_train_KidneyTox.csv"
+# https://github.com/Amincheminform/KidneyTox_v1.0/blob/main/0_train_KidneyTox.csv
+test_url = "https://github.com/Amincheminform/KidneyTox_v1.0/raw/main/0_test_KidneyTox.csv"
 
-train_data = pd.read_csv(r'C:\Users\Amin\Downloads\KidneyTox_v1.0\0_train_KidneyTox.csv', sep=',')
-test_data = pd.read_csv(r'C:\Users\Amin\Downloads\KidneyTox_v1.0\0_test_KidneyTox.csv', sep=',')
+train_data = pd.read_csv(train_url, sep=',')
+test_data = pd.read_csv(test_url, sep=',')
 
 PandasTools.AddMoleculeColumnToFrame(train_data, 'Smiles', 'Molecule')
 PandasTools.AddMoleculeColumnToFrame(test_data, 'Smiles', 'Molecule')
 
+# https://github.com/Amincheminform/KidneyTox_v1.0/blob/main/KidneyTox_logo.jpg
 # Streamlit
-logo_url = "https://raw.githubusercontent.com/Amincheminform/phKMOi_v1/main/phKMOi_v1_logo.jpg"
+logo_url = "https://raw.githubusercontent.com/Amincheminform/KidneyTox_v1.0/main/KidneyTox_logo.jpg"
 
 st.set_page_config(
     page_title="KidneyTox_v1.0: predictor of Kidney Toxicity",
@@ -208,5 +210,6 @@ with st.expander("Contact", expanded=False):
         Report a bug or contribute here: [GitHub](https://github.com/Amincheminform)
 
         #### Contact Us
+        - [Dr. Supratik Kar](mailto:skar@kean.edu)
         - [Dr. Sk. Abdul Amin](mailto:pharmacist.amin@gmail.com)
     ''')
