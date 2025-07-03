@@ -7,14 +7,14 @@ from rdkit import Chem
 from rdkit import DataStructs
 from rdkit.Chem import AllChem
 from mordred import Calculator, descriptors
-from rdkit.Chem import PandasTools
+#from rdkit.Chem import PandasTools
 import matplotlib.pyplot as plt
 from io import BytesIO
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import shap
 from PIL import Image
-#from rdkit.Chem import Draw
-#from rdkit.Chem.Draw import rdMolDraw2D
+from rdkit.Chem import Draw
+from rdkit.Chem.Draw import rdMolDraw2D
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import io
 
