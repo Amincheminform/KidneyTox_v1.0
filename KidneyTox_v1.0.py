@@ -7,7 +7,7 @@ from rdkit import Chem
 from rdkit import DataStructs
 from rdkit.Chem import AllChem
 from mordred import Calculator, descriptors
-#from rdkit.Chem import PandasTools
+from rdkit.Chem import PandasTools
 import matplotlib.pyplot as plt
 from io import BytesIO
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
