@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_ketcher import st_ketcher
+#from streamlit_ketcher import st_ketcher
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
