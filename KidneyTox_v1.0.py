@@ -18,7 +18,7 @@ from rdkit.Chem.Draw import rdMolDraw2D
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import io
 
-# Author : Dr. Sk. Abdul Amin
+# Author: Dr. Sk. Abdul Amin
 # [Details](https://www.scopus.com/authid/detail.uri?authorId=57190176332).
 # Date: 03.07.2025
 
@@ -83,14 +83,24 @@ def get_ecfp4(smiles):
     mol = Chem.MolFromSmiles(smiles)
     return AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
 
-st.title("KidneyTox_v1.0: predictor of Kidney Toxicity")
+#st.title("KidneyTox_v1.0: predictor of Kidney Toxicity")
+#st.image(logo_url, width=300)
 
-st.image(logo_url, width=300)
+st.markdown(
+    f"""
+    <div style="display: flex; justify-content: center; align-items: center; padding-top: 20px;">
+        <img src="{logo_url}" alt="KidneyTox Logo" width="350">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-with st.expander("What is KidneyTox_v1.0?", expanded=True):
-    st.write('''*KidneyTox_v1.0* is a python package that allows users to predict 
-             the nephrotoxicity of a small molecule (1 = Toxic, 0 = Non-toxic) 
-             and also visualize the molecule.''')
+with st.expander("**About KidneyTox v1.0**", expanded=True):
+    st.markdown("""
+**KidneyTox v1.0** is an easy-to-use predictive tool for evaluating the **nephrotoxicity** (kidney toxicity) of small molecules.
+
+Example SMILES:  `Indomethacin` → `CC1=C(C2=C(N1C(=O)C3=CC=C(C=C3)Cl)C=CC(=C2)OC)CC(=O)O`
+""")
 
 col1, col2 = st.columns(2)
 
