@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_ketcher import st_ketcher
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from rdkit import Chem
@@ -97,9 +98,25 @@ st.markdown(
 
 with st.expander("**About KidneyTox v1.0**", expanded=True):
     st.markdown("""
+
 **KidneyTox v1.0** is an easy-to-use predictive tool for evaluating the **nephrotoxicity** (kidney toxicity) of small molecules.
 
 Example SMILES:  `Indomethacin` → `CC1=C(C2=C(N1C(=O)C3=CC=C(C=C3)Cl)C=CC(=C2)OC)CC(=O)O`
+
+Definitions of the descriptor used in **KidneyTox v1.0**
+
+| Descriptor | Type | Definition |
+|------------|------|------------|
+| BCUTdv-1l | BCUT descriptors | A BCUT descriptor derived from eigenvalues of an adjacency matrix representing the molecule, weighted by a specific property (van der Waals volume). "1l" indicates the lowest eigenvalue. |
+| BCUTZ-1h | BCUT descriptors | Similar to BCUTdv-1l, but the matrix is weighted by atomic polarizability, and "1h" refers to the highest eigenvalue. |
+| BCUTd-1h | BCUT descriptors | A BCUT descriptor where the adjacency matrix is weighted by a dipole-related property. "1h" indicates the highest eigenvalue. |
+| BCUTZ-1l | BCUT descriptors | A BCUT descriptor weighted by atomic polarizability, where "1l" refers to the lowest eigenvalue. |
+| BCUTd-1l | BCUT descriptors | A BCUT descriptor weighted by dipole-related properties, focusing on the lowest eigenvalue. |
+| BCUTs-1h | BCUT descriptors | A BCUT descriptor weighted by atomic electronegativity, focusing on the highest eigenvalue. |
+| AXp-2d | Autocorrelation descriptors | A 2D autocorrelation descriptor that measures the distribution of atomic properties (like electronegativity, mass, or charge) weighted by bond distance in a molecule. |
+| Xc-5dv | Autocorrelation descriptors | A 2D autocorrelation descriptor that considers the distribution of valence electron information across a molecule. |
+| SpMax_A | Topological descriptors | Represents the maximum eigenvalue of the adjacency matrix weighted by atomic properties. The "_A" suffix suggests a specific property, such as electronegativity or polarizability. |
+| AETA_eta_F | Dipole-related descriptors | A measure of atomic electronegativity weighted topological descriptor. Specifically relates to the F (fluorine) atom or fluorine-related features in the molecule. |
 """)
 
 col1, col2 = st.columns(2)
@@ -118,7 +135,7 @@ with col2:
 
     if smiles_input and not prediction_done:
         st.markdown(f"✅ **SMILES code**: `{smiles_input}`")
-        st.markdown("**Calculation may take < 30 seconds!**")
+        st.markdown("**Some calculation may take < 30 seconds!**")
         st.markdown("**Thank you for your patience!**")
 
     if smiles_input:
@@ -160,55 +177,88 @@ with col2:
             ]
 
             def pred_label(pred):
-                return "### **Toxic**" if pred == 1 else "### **Non-toxic**"
+                return "### Toxic" if pred == 1 else "### Non-toxic"
 
-            # Row 1 — Query molecule
-            st.markdown("### Query Molecule")
+            X_combined_external = np.vstack((X_train, X_external.to_numpy()))
+            Amin_H_external = X_combined_external @ np.linalg.pinv(
+                X_combined_external.T @ X_combined_external) @ X_combined_external.T
+            external_leverage = np.diag(Amin_H_external)[len(X_train):]
+
+            p = X_train.shape[1]
+            n = X_train.shape[0]
+            leverage_threshold = 3 * p / n
+            external_ad_flags = external_leverage <= leverage_threshold
+
+            y_external_pred = model.predict(X_external)
+            explainer = shap.TreeExplainer(model)
+            shap_values = explainer(X_external)
+
+            st.subheader("Query Molecule Results")
             col1, col2 = st.columns(2)
 
             with col1:
-                # SHAP plot (smaller)
+                # SHAP Waterfall plot
                 plt.figure(figsize=(4, 3))
                 shap.plots.waterfall(shap_values[0, :, y_external_pred[0]], max_display=10, show=False)
-                fig1 = plt.gcf()
-                st.pyplot(fig1)
+                st.pyplot(plt.gcf())
                 plt.clf()
 
             with col2:
-                # Molecule image + prediction label
+                # Molecule image
                 mol_img = mol_to_array(molecules[0])
                 st.image(mol_img, caption="Query Molecule", width=250)
+
                 st.markdown(f"<div style='font-size:40px;'>{pred_label(y_external_pred[0])}</div>",
                             unsafe_allow_html=True)
 
-            # Separator
-            st.markdown("---")
+                # AD flag with explanation tooltip
+                #ad_status = 'Within AD ' if external_ad_flags[0] else 'Outside AD'
+                if external_ad_flags[0]:
+                    st.markdown("<b>Applicability Domain:</b> <span style='color:green;'>Within AD </span>",
+                                unsafe_allow_html=True)
+                else:
+                    st.markdown("<b>Applicability Domain:</b> <span style='color:red;'>Outside AD </span>",
+                                unsafe_allow_html=True)
 
-            # Row 2 — Most similar molecule
-            st.markdown("### Most similar molecule from the dataset")
+                #st.markdown(f"**Applicability Domain:** {ad_status}")
+
+            #Most similar molecule from dataset
+            st.markdown("---")
+            st.subheader("Most Similar Molecule from Dataset")
+
             col3, col4 = st.columns(2)
 
             with col3:
-                # SHAP plot (smaller)
                 plt.figure(figsize=(4, 3))
                 shap.plots.waterfall(shap_values[1, :, y_external_pred[1]], max_display=10, show=False)
-                fig2 = plt.gcf()
-                st.pyplot(fig2)
+                st.pyplot(plt.gcf())
                 plt.clf()
 
             with col4:
-                # Molecule image + prediction + similarity + ID
                 similar_mol_img = mol_to_array(molecules[1])
                 st.image(similar_mol_img, caption="Most Similar Molecule", width=250)
                 st.markdown(f"**Molecule ID**: {most_similar['ID']}")
-                st.markdown(f"**Tanimoto similarity with respect to query molecule**: {most_similar['Tanimoto']:.2f}")
+                st.markdown(f"**Tanimoto similarity:** {most_similar['Tanimoto']:.2f}")
                 st.markdown(f"<div style='font-size:40px;'>{pred_label(y_external_pred[1])}</div>",
                             unsafe_allow_html=True)
 
+                # Optional: AD for most similar molecule
+                if external_ad_flags[1]:
+                    st.markdown("<b>Applicability Domain:</b> <span style='color:green;'>Within AD </span>",
+                                unsafe_allow_html=True)
+                else:
+                    st.markdown("<b>Applicability Domain:</b> <span style='color:red;'>Outside AD </span>",
+                                unsafe_allow_html=True)
+
+            st.markdown(
+                "NOTE: A molecule 'Within AD' means its structural descriptors fall within the reliable chemical space of the training set, "
+                "and predictions are considered reliable. "
+                "A molecule 'Outside AD' may have structural features not well represented in the training data; "
+                "its prediction should be interpreted with caution."
+            )
+
     else:
         st.info("Please enter a SMILES string to get predictions.")
-
-
 
 # Author : Dr. Sk. Abdul Amin
 # [Details](https://www.scopus.com/authid/detail.uri?authorId=57190176332).
