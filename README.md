@@ -6,8 +6,11 @@
 
 It is a <img src="https://streamlit.io/images/brand/streamlit-mark-color.svg" alt="Streamlit Logo" width="50"/>-based [Web Application](https://kidneytoxv1.streamlit.app/) that predicts the **kidney toxicity** of a small molecule and also visualizes the molecule with the contribution of the features in the prediction.
 
+Note: This tool is a part of the article "KidneyTox_v1.0 enables explainable artificial intelligence prediction of nephrotoxicity in small molecules" (Scientific reports, 2026, 16(1), 5099. DOI: [10.1038/s41598-026-35496-4](https://doi.org/10.1038/s41598-026-35496-4)).
+
 ---
-This tool is a part of the article "*KidneyTox_v1: A Machine Learning-based Tool for Predicting Nephrotoxicity of Molecule*" (Manuscript under preparation).
+If you use this tool, please cite:
+> Amin, S. A., Kar, S., & Piotto, S. *KidneyTox_v1.0 enables explainable artificial intelligence prediction of nephrotoxicity in small molecules*. Scientific reports, 2026, 16(1), 5099. DOI: [10.1038/s41598-026-35496-4](https://doi.org/10.1038/s41598-026-35496-4)
 
 ---
 The **KidneyTox v1.0** web application can be used by following [This Link](https://kidneytoxv1.streamlit.app/).
